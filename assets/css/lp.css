@@ -1622,6 +1622,8 @@ button { cursor: pointer; border: 0; background: none; }
   font-size: 0.76rem;
   color: rgba(255,255,255,0.4);
   padding-top: 0.5rem;
+  text-align: center;
+  width: 100%;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
 .footer-meta-sub { margin-top: 0.3rem; }
@@ -1746,9 +1748,11 @@ button { cursor: pointer; border: 0; background: none; }
   .footer-logo { height: 100px; max-width: 190px; }
   .footer-nap { justify-items: center; text-align: center; }
   .footer-meta {
-    border-top: 0;
-    text-align: right;
-    padding-top: 0;
+    grid-column: 1 / -1; /* full-width row so copyright sits true center */
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+    padding-top: 1rem;
+    margin-top: 0.25rem;
   }
   .check-panel {
     display: grid;
