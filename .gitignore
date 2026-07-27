@@ -1,0 +1,28 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+.grok/
+
+# Local tooling / scrapes (not needed on Vercel)
+resources/
+__pycache__/
+*.pyc
+
+# Local-only brief copies (keep LPs + assets public)
+instruction.txt
+instruction breakdown.txt
+
+# Optional local previews / unused asset downloads
+photo_preview.png
+assets/images/hero-tech.jpeg
+assets/images/badges/bbb-badge.svg
+assets/images/badges/bbb2.png
+assets/images/badges/*-fav.png
+assets/images/badges/*-simple.svg
+assets/images/badges/*-jsdelivr.svg
+assets/images/badges/yelp.svg
+assets/images/badges/yelp2.svg
+assets/images/badges/yelp-logo.svg
+*.tmp
