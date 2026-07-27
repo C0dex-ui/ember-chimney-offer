@@ -90,7 +90,7 @@
         if (status) {
           status.classList.add("show");
           status.textContent =
-            "Thanks — form is in demo mode. Call (844) 803-0373 to book now.";
+            "Thanks! Call (844) 803-0373 for the fastest booking.";
         }
       });
     });
