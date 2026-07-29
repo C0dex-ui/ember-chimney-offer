@@ -115,14 +115,6 @@ button { cursor: pointer; border: 0; background: none; }
 }
 .ph-video .play svg { width: 18px; height: 18px; fill: var(--brand); margin-left: 2px; }
 .ph-photo { min-height: 0; aspect-ratio: 4/3; font-size: 0.78rem; }
-.work-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-}
-@media (min-width: 640px) {
-  .work-grid { grid-template-columns: repeat(3, 1fr); }
-}
 .reviews-ph-grid {
   display: grid;
   gap: 0.9rem;
@@ -131,12 +123,165 @@ button { cursor: pointer; border: 0; background: none; }
 @media (min-width: 640px) {
   .reviews-ph-grid { grid-template-columns: repeat(3, 1fr); }
 }
-.media-slots {
+/* Before / after comparison sliders ------------------------------------- */
+.work-grid {
   display: grid;
-  gap: 1rem;
+  grid-template-columns: 1fr;
+  gap: 1.15rem;
 }
-@media (min-width: 768px) {
-  .media-slots { grid-template-columns: 1fr 1fr; }
+@media (min-width: 700px) {
+  .work-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+@media (min-width: 1100px) {
+  .work-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.ba-card {
+  margin: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(15, 20, 25, 0.1);
+  border: 1px solid rgba(15, 20, 25, 0.06);
+}
+.ba-card-title {
+  padding: 0.7rem 0.9rem 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.ba-slider {
+  --pos: 50%;
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #e8eaed;
+  user-select: none;
+  touch-action: none;
+  cursor: ew-resize;
+}
+.ba-slider img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.ba-slider-after {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ba-slider-before-wrap {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--pos);
+  overflow: hidden;
+  z-index: 1;
+  border-right: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.18);
+}
+/* Full-width image inside clipped wrap so before/after stay aligned */
+.ba-slider-before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+  /* width/height set in px by JS to match slider box */
+}
+.ba-label {
+  position: absolute;
+  top: 0.5rem;
+  z-index: 3;
+  padding: 0.22rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  pointer-events: none;
+}
+.ba-label-before {
+  left: 0.5rem;
+  background: rgba(15, 20, 25, 0.72);
+  backdrop-filter: blur(4px);
+}
+.ba-label-after {
+  right: 0.5rem;
+  background: rgba(210, 89, 16, 0.92);
+}
+.ba-slider-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos);
+  z-index: 4;
+  width: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.ba-slider-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+}
+.ba-slider-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  display: grid;
+  place-items: center;
+  color: var(--brand, #d25910);
+}
+.ba-slider-knob svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+/* Visually hidden range for keyboard / screen readers; mouse uses pointer drag */
+.ba-slider-range {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+}
+.ba-slider.is-dragging {
+  cursor: grabbing;
+}
+.ba-slider.is-dragging .ba-slider-knob {
+  transform: translate(-50%, -50%) scale(1.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+.ba-slider:focus-within .ba-slider-knob {
+  outline: 3px solid rgba(210, 89, 16, 0.55);
+  outline-offset: 2px;
 }
 /* What's included — card grid -------------------------------------------- */
 #included.section {
