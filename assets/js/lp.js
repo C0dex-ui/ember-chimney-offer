@@ -85,11 +85,114 @@
     });
   }
 
+  /** Expand/collapse review text (Google-style "Read more") */
+  function bindReviewMore() {
+    document.querySelectorAll("[data-review-more]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var card = btn.closest(".g-review-card");
+        if (!card) return;
+        var open = card.classList.toggle("is-open");
+        btn.textContent = open ? "Read less" : "Read more";
+      });
+    });
+  }
+
+  /** Horizontal reviews slider (10 cards) */
+  function bindReviewsSlider() {
+    document.querySelectorAll("[data-reviews-slider]").forEach(function (root) {
+      var track = root.querySelector("[data-slider-track]");
+      var prev = root.querySelector("[data-slider-prev]");
+      var next = root.querySelector("[data-slider-next]");
+      var dotsHost = root.querySelector("[data-slider-dots]");
+      if (!track) return;
+
+      var cards = track.querySelectorAll(".g-review-card");
+      if (!cards.length) return;
+
+      function cardStep() {
+        var card = cards[0];
+        var styles = window.getComputedStyle(track);
+        var gap = parseFloat(styles.columnGap || styles.gap || "16") || 16;
+        return card.getBoundingClientRect().width + gap;
+      }
+
+      function maxScroll() {
+        return Math.max(0, track.scrollWidth - track.clientWidth - 2);
+      }
+
+      function pageCount() {
+        var step = cardStep();
+        if (step <= 0) return 1;
+        return Math.max(1, Math.ceil((maxScroll() + step) / step));
+      }
+
+      function currentPage() {
+        var step = cardStep();
+        if (step <= 0) return 0;
+        return Math.round(track.scrollLeft / step);
+      }
+
+      function updateChrome() {
+        var max = maxScroll();
+        if (prev) prev.disabled = track.scrollLeft <= 2;
+        if (next) next.disabled = track.scrollLeft >= max - 2;
+        if (dotsHost) {
+          var page = currentPage();
+          dotsHost.querySelectorAll("button").forEach(function (dot, i) {
+            dot.classList.toggle("is-active", i === page);
+          });
+        }
+      }
+
+      function buildDots() {
+        if (!dotsHost) return;
+        dotsHost.innerHTML = "";
+        var n = pageCount();
+        for (var i = 0; i < n; i++) {
+          (function (idx) {
+            var b = document.createElement("button");
+            b.type = "button";
+            b.setAttribute("aria-label", "Go to reviews page " + (idx + 1));
+            b.addEventListener("click", function () {
+              track.scrollTo({ left: idx * cardStep(), behavior: "smooth" });
+            });
+            dotsHost.appendChild(b);
+          })(i);
+        }
+        updateChrome();
+      }
+
+      if (prev) {
+        prev.addEventListener("click", function () {
+          track.scrollBy({ left: -cardStep() * Math.max(1, Math.floor(track.clientWidth / cardStep())), behavior: "smooth" });
+        });
+      }
+      if (next) {
+        next.addEventListener("click", function () {
+          track.scrollBy({ left: cardStep() * Math.max(1, Math.floor(track.clientWidth / cardStep())), behavior: "smooth" });
+        });
+      }
+
+      track.addEventListener("scroll", function () {
+        window.requestAnimationFrame(updateChrome);
+      }, { passive: true });
+
+      window.addEventListener("resize", function () {
+        buildDots();
+      });
+
+      buildDots();
+      updateChrome();
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     setOfferEndDates();
     bindHeaderScroll();
     bindSmoothAnchors();
     bindForms();
     setYear();
+    bindReviewMore();
+    bindReviewsSlider();
   });
 })();
