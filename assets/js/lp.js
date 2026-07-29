@@ -62,18 +62,43 @@
     });
   }
 
-  /** Placeholder forms — prevent submit; client wires webhook + thank-you later. */
+  /**
+   * Forms → thank-you page with name/service/loc query params.
+   * Webhook can still be wired later; redirect is the success state for now.
+   */
   function bindForms() {
     document.querySelectorAll("form[data-lp-form]").forEach(function (form) {
       form.addEventListener("submit", function (e) {
         e.preventDefault();
-        var status = form.querySelector(".form-status");
-        if (status) {
-          status.classList.add("show", "is-ok");
-          status.classList.remove("is-error");
-          status.textContent =
-            "Thanks! Call (844) 803-0373 for the fastest booking. (Form not connected yet.)";
+
+        var nameInput = form.querySelector('[name="name"], #name');
+        var phoneInput = form.querySelector('[name="phone"], #phone');
+        var zipInput = form.querySelector('[name="zip"], #zip');
+        var name = nameInput ? String(nameInput.value || "").trim() : "";
+        var phone = phoneInput ? String(phoneInput.value || "").trim() : "";
+        var zip = zipInput ? String(zipInput.value || "").trim() : "";
+
+        if (!name || !phone || !zip) {
+          var status = form.querySelector(".form-status");
+          if (status) {
+            status.classList.add("show", "is-error");
+            status.classList.remove("is-ok");
+            status.textContent = "Please fill in name, phone, and zip so we can call you back.";
+          }
+          return;
         }
+
+        var service = form.getAttribute("data-service") || "chimney-service";
+        var params = new URLSearchParams(window.location.search);
+        var loc = params.get("loc") || "";
+        var qs = new URLSearchParams();
+        qs.set("name", name);
+        qs.set("service", service);
+        if (loc) qs.set("loc", loc);
+        if (zip) qs.set("zip", zip);
+
+        // Relative path works from offer/*/index.html → offer/thank-you/
+        window.location.href = "../thank-you/?" + qs.toString();
       });
     });
   }
