@@ -30,6 +30,9 @@
     });
   </script>
 
+  <!-- CallRail: early load so gclid session is ready before numbers paint -->
+  <link rel="preconnect" href="https://cdn.callrail.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.callrail.com">
 </head>
 <body class="lp-canvas lp-thank-you">
   <a class="skip-link" href="#ty-main">Skip to confirmation</a>
@@ -226,7 +229,7 @@
   })();
   </script>
   <script src="../../assets/js/lp.js?v=41"></script>
-  <!-- CallRail dynamic number swap -->
-  <script src="https://cdn.callrail.com/companies/578256671/32f23b92d88d9a105486/12/swap.js" async></script>
+  <!-- CallRail dynamic number insertion -->
+  <script type="text/javascript" src="https://cdn.callrail.com/companies/578256671/32f23b92d88d9a105486/12/swap.js"></script>
 </body>
 </html>

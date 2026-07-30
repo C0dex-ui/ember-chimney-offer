@@ -47,14 +47,27 @@ git push
 
 ## Verification (incognito, after deploy)
 
-1. Offer page + `?gclid=test123` → number may swap to (817) within ~1s  
+1. Offer page + `?gclid=test` → number may swap to tracking # (often 817) within ~1–2s  
 2. No `gclid` → stays (844) 803-0373  
-3. `?gclid=test123&loc=1026804&kw=chimney%20cleaning` on sweep → 817 + H1 city/kw  
+3. `?gclid=test&loc=1026804&kw=chimney%20cleaning` on sweep → tracking # + H1 city/kw  
 4. Submit form name `Test DELETE` → lands on `/offer/thank-you/`  
 5. DevTools Network → `googleadservices` / conversion request on thank-you  
 6. Both inboxes receive lead email  
 7. No console errors  
 8. Repeat on mobile 375px  
+
+### CallRail DNI not swapping?
+
+Code already loads official `swap.js` (no `async`) before `</body>` and uses format `(844) 803-0373`.
+
+If the number stays 844 with `?gclid=test` in a **fresh private window**:
+
+1. **CallRail → company → source / website pool**  
+   - Landing domain must include `ember-chimney.vercel.app` (and any custom domain)  
+2. **Swap target** must match the number on the site: `844-803-0373` / `(844) 803-0373`  
+3. **Number pool** must have available tracking numbers  
+4. Use CallRail **Integrations → JavaScript Snippet → Test** (auto-test) against the live URL  
+5. Retest only with `?gclid=test` (CallRail docs) in a new incognito window, no ad blockers  
 
 Recipients:
 
