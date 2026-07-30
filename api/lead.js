@@ -4,13 +4,52 @@
  *
  * Env (Vercel project settings):
  *   RESEND_API_KEY  — required (https://resend.com)
- *   RESEND_FROM     — required for production, e.g.
- *                     "Ember Chimney <info@yourdomain.com>"
+ *   RESEND_FROM     — e.g. "Ember Chimney <info@emberchimney.com>"
  *                     Domain must be verified in Resend (DNS).
- *                     Falls back to onboarding@resend.dev only for testing.
  */
 
 const TO = ["yuvalcarmel27@gmail.com", "raz2540@gmail.com"];
+
+const GEO = {
+  "1026178": "Allen",
+  "1026193": "Argyle",
+  "1026215": "Bedford",
+  "1026271": "Carrollton",
+  "1026278": "Celina",
+  "1026306": "Colleyville",
+  "1026317": "Coppell",
+  "1026350": "Denton",
+  "1026385": "Euless",
+  "1026398": "Flower Mound",
+  "1026407": "Frisco",
+  "1026441": "Grapevine",
+  "9052131": "Highland Park",
+  "9052132": "Highland Village",
+  "1026490": "Hurst",
+  "1026518": "Keller",
+  "9189634": "Lantana",
+  "1026556": "Lewisville",
+  "1026562": "Little Elm",
+  "1026607": "McKinney",
+  "1026658": "North Richland Hills",
+  "1026695": "Plano",
+  "1026716": "Prosper",
+  "1026729": "Richardson",
+  "1026741": "Rockwall",
+  "1026804": "Southlake",
+  "1026836": "The Colony",
+  "9053007": "Trophy Club",
+  "9053028": "University Park",
+  "9053138": "Westlake",
+};
+
+const SERVICE_LABELS = {
+  "chimney-sweep": "Chimney Sweep",
+  "chimney-inspection": "Chimney Inspection",
+  "chimney-repair": "Chimney Repair",
+  "fireplace-repair": "Fireplace Repair",
+  "chimney-cap": "Chimney Cap",
+};
 
 function json(res, status, body) {
   res.statusCode = status;
@@ -41,6 +80,14 @@ function clean(v, max) {
   return s.slice(0, max || 500);
 }
 
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function centralTimeStamp() {
   try {
     return new Intl.DateTimeFormat("en-US", {
@@ -51,6 +98,149 @@ function centralTimeStamp() {
   } catch (e) {
     return new Date().toISOString() + " (UTC)";
   }
+}
+
+function serviceLabel(service, page) {
+  if (service && SERVICE_LABELS[service]) return SERVICE_LABELS[service];
+  if (service) return service;
+  const m = String(page || "").match(/\/offer\/([^/]+)/);
+  if (m && SERVICE_LABELS[m[1]]) return SERVICE_LABELS[m[1]];
+  return "Offer landing page";
+}
+
+function cityDisplay(loc) {
+  if (!loc) return "—";
+  if (GEO[loc]) return `${GEO[loc]} (${loc})`;
+  return loc;
+}
+
+function dash(v) {
+  return v && String(v).trim() ? String(v).trim() : "—";
+}
+
+function phoneHref(phone) {
+  const digits = String(phone).replace(/[^\d+]/g, "");
+  if (!digits) return "";
+  return digits.startsWith("+") ? digits : "+1" + digits.replace(/^1/, "");
+}
+
+function buildTextEmail(fields) {
+  return [
+    "NEW EMBER CHIMNEY LEAD",
+    "======================",
+    "",
+    `Name:     ${fields.name}`,
+    `Phone:    ${fields.phone}`,
+    `Zip:      ${fields.zip}`,
+    `Message:  ${fields.message || "(none)"}`,
+    "",
+    `Service:  ${fields.serviceLabel}`,
+    `Page:     ${fields.page || "(unknown)"}`,
+    `City:     ${fields.cityLine}`,
+    `Keyword:  ${fields.kw || "(none)"}`,
+    `Gclid:    ${fields.gclid || "(none)"}`,
+    `Time:     ${fields.time}`,
+    "",
+    "— Ember Chimney landing page form",
+  ].join("\n");
+}
+
+function row(label, valueHtml) {
+  return `
+    <tr>
+      <td style="padding:12px 14px;border-bottom:1px solid #eceff3;width:34%;font-size:13px;font-weight:700;color:#5a6270;vertical-align:top;">
+        ${label}
+      </td>
+      <td style="padding:12px 14px;border-bottom:1px solid #eceff3;font-size:15px;color:#1a1a1a;vertical-align:top;line-height:1.45;">
+        ${valueHtml}
+      </td>
+    </tr>`;
+}
+
+function buildHtmlEmail(fields) {
+  const tel = phoneHref(fields.phone);
+  const phoneCell = tel
+    ? `<a href="tel:${escapeHtml(tel)}" style="color:#d25910;font-weight:700;text-decoration:none;">${escapeHtml(fields.phone)}</a>`
+    : escapeHtml(fields.phone);
+
+  const messageCell = fields.message
+    ? `<div style="white-space:pre-wrap;">${escapeHtml(fields.message)}</div>`
+    : `<span style="color:#9aa3af;">(none)</span>`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>New Ember Lead</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:Montserrat,Segoe UI,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f6f8;padding:28px 14px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e6e8ec;box-shadow:0 10px 30px rgba(15,39,68,0.08);">
+          <tr>
+            <td style="background:linear-gradient(135deg,#0f2744 0%,#16345a 55%,#d25910 160%);padding:22px 24px 20px;">
+              <div style="font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.75);margin-bottom:8px;">
+                New website lead
+              </div>
+              <div style="font-size:22px;font-weight:800;color:#ffffff;line-height:1.25;letter-spacing:-0.02em;">
+                ${escapeHtml(fields.name)}
+              </div>
+              <div style="margin-top:8px;font-size:14px;color:rgba(255,255,255,0.9);">
+                ${escapeHtml(fields.serviceLabel)} · Ember Chimney LP
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:8px 10px 4px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+                ${row("Name", escapeHtml(fields.name))}
+                ${row("Phone", phoneCell)}
+                ${row("Zip", escapeHtml(fields.zip))}
+                ${row("Message", messageCell)}
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:4px 24px 8px;">
+              <div style="font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#9aa3af;margin:8px 0 4px 0;">
+                Tracking
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:0 10px 10px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background:#f7f8fa;border-radius:12px;">
+                ${row("Service", escapeHtml(fields.serviceLabel))}
+                ${row("Page", `<span style="word-break:break-all;">${escapeHtml(dash(fields.page))}</span>`)}
+                ${row("City", escapeHtml(fields.cityLine))}
+                ${row("Keyword", escapeHtml(dash(fields.kw)))}
+                ${row("Gclid", `<span style="word-break:break-all;font-size:13px;color:#5a6270;">${escapeHtml(dash(fields.gclid))}</span>`)}
+                ${row("Time", escapeHtml(fields.time))}
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:8px 24px 22px;">
+              <a href="tel:${escapeHtml(tel || fields.phone)}" style="display:inline-block;background:#d25910;color:#ffffff;text-decoration:none;font-weight:800;font-size:14px;padding:12px 18px;border-radius:10px;">
+                Call ${escapeHtml(fields.phone)}
+              </a>
+              <div style="margin-top:16px;font-size:12px;line-height:1.5;color:#9aa3af;">
+                Sent automatically from the Ember Chimney offer landing pages.
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 }
 
 module.exports = async function handler(req, res) {
@@ -89,26 +279,30 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const subject = `New Ember Lead — ${service || page || "offer"} — ${name}`;
-  const body = [
-    `Name:     ${name}`,
-    `Phone:    ${phone}`,
-    `Zip:      ${zip}`,
-    `Message:  ${message || "(none)"}`,
-    `Page:     ${page || "(unknown)"}`,
-    `City:     ${loc || "(none)"}`,
-    `Keyword:  ${kw || "(none)"}`,
-    `Gclid:    ${gclid || "(none)"}`,
-    `Service:  ${service || "(none)"}`,
-    `Time:     ${centralTimeStamp()}`,
-  ].join("\n");
+  const fields = {
+    name,
+    phone,
+    zip,
+    message,
+    page,
+    loc,
+    kw,
+    gclid,
+    service,
+    serviceLabel: serviceLabel(service, page),
+    cityLine: cityDisplay(loc),
+    time: centralTimeStamp(),
+  };
+
+  const subject = `New Ember Lead — ${fields.serviceLabel} — ${name}`;
+  const text = buildTextEmail(fields);
+  const html = buildHtmlEmail(fields);
 
   // TODO next phase: also forward payload to CRM webhook (env var), same JSON body
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.error("[lead] RESEND_API_KEY is not set");
-    // Still 200 so the client always redirects to thank-you
     return json(res, 200, {
       ok: false,
       emailed: false,
@@ -116,10 +310,8 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  // Prefer their real mailbox identity (info@domain) once domain is verified in Resend
   const from =
-    process.env.RESEND_FROM ||
-    "Ember Chimney <onboarding@resend.dev>";
+    process.env.RESEND_FROM || "Ember Chimney <info@emberchimney.com>";
 
   try {
     const r = await fetch("https://api.resend.com/emails", {
@@ -132,7 +324,8 @@ module.exports = async function handler(req, res) {
         from,
         to: TO,
         subject,
-        text: body,
+        text,
+        html,
       }),
     });
 
