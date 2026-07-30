@@ -69,7 +69,6 @@
       display: flex;
       align-items: center;
       gap: 0.85rem;
-      margin-bottom: 1rem;
       position: relative;
       z-index: 1;
     }
@@ -80,14 +79,7 @@
       background: #fff;
       object-fit: contain;
       padding: 4px;
-    }
-    .hero-kicker {
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.7);
-      margin: 0 0 0.2rem;
+      flex-shrink: 0;
     }
     .hero h1 {
       margin: 0;
@@ -96,16 +88,6 @@
       letter-spacing: -0.02em;
       line-height: 1.2;
     }
-    .hero-lead {
-      margin: 0;
-      position: relative;
-      z-index: 1;
-      color: rgba(255, 255, 255, 0.88);
-      font-size: 0.95rem;
-      line-height: 1.5;
-      max-width: 40ch;
-    }
-    .hero-lead strong { color: #ffb07a; font-weight: 700; }
 
     .section-label {
       font-size: 0.72rem;
@@ -172,14 +154,6 @@
       color: var(--brand-dark);
       border: 1px solid #ffd0ad;
     }
-    .pill-path {
-      background: #f0f3f7;
-      color: var(--muted);
-      border: 1px solid var(--line);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-weight: 600;
-      font-size: 0.7rem;
-    }
     .lp-arrow {
       width: 40px;
       height: 40px;
@@ -199,84 +173,9 @@
     }
     .lp-arrow svg { width: 18px; height: 18px; }
 
-    .panel {
-      margin-top: 1.35rem;
-      background: var(--white);
-      border: 1px solid rgba(15, 39, 68, 0.08);
-      border-radius: var(--radius);
-      box-shadow: 0 6px 20px rgba(15, 39, 68, 0.05);
-      overflow: hidden;
-    }
-    .panel-head {
-      padding: 0.85rem 1.15rem;
-      background: linear-gradient(90deg, #fff6ef, #fff);
-      border-bottom: 1px solid #ffe0c2;
-      font-size: 0.78rem;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--brand);
-    }
-    .panel-body {
-      padding: 1rem 1.15rem 1.15rem;
-      display: grid;
-      gap: 0.85rem;
-    }
-    .tip {
-      margin: 0;
-      font-size: 0.9rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-    .tip strong { color: var(--ink); }
-    .tip code,
-    .chip-row code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.82em;
-      background: #f0f3f7;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 0.12rem 0.4rem;
-      color: var(--navy);
-    }
-    .chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.45rem;
-    }
-    .chip-row a {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.45rem 0.7rem;
-      border-radius: 10px;
-      background: #f7f8fa;
-      border: 1px solid var(--line);
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--navy);
-      transition: border-color 0.15s var(--ease), background 0.15s var(--ease);
-    }
-    .chip-row a:hover {
-      border-color: rgba(210, 89, 16, 0.4);
-      background: #fff6ef;
-      color: var(--brand-dark);
-    }
-
-    .footer {
-      margin-top: 1.75rem;
-      text-align: center;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-    .footer a {
-      color: var(--brand);
-      font-weight: 700;
-    }
-
     @media (min-width: 640px) {
       .shell { padding-top: 2.75rem; }
-      .hero { padding: 2rem 2rem 1.85rem; }
+      .hero { padding: 1.5rem 1.75rem; }
       .lp-card { padding: 1.15rem 1.25rem; }
     }
   </style>
@@ -286,15 +185,8 @@
     <header class="hero">
       <div class="hero-top">
         <img class="hero-logo" src="/assets/images/ember-logo.webp" alt="Ember Chimney" width="52" height="52">
-        <div>
-          <p class="hero-kicker">Google Ads · Landing pages</p>
-          <h1>Ember Chimney offer LPs</h1>
-        </div>
+        <h1>Ember Chimney offer LPs</h1>
       </div>
-      <p class="hero-lead">
-        Five service pages + thank-you. Dynamic city with <strong>?loc=</strong>
-        and keyword with <strong>?kw=</strong>. Forms email leads and convert on thank-you.
-      </p>
     </header>
 
     <p class="section-label">Landing pages</p>
@@ -305,7 +197,6 @@
             <p class="lp-title">Chimney Sweep &amp; Cleaning</p>
             <span class="lp-meta">
               <span class="pill pill-offer">$99 special</span>
-              <span class="pill pill-path">/offer/chimney-sweep/</span>
             </span>
           </span>
           <span class="lp-arrow" aria-hidden="true">
@@ -319,7 +210,6 @@
             <p class="lp-title">Chimney Inspection</p>
             <span class="lp-meta">
               <span class="pill pill-offer">$69 special</span>
-              <span class="pill pill-path">/offer/chimney-inspection/</span>
             </span>
           </span>
           <span class="lp-arrow" aria-hidden="true">
@@ -333,7 +223,6 @@
             <p class="lp-title">Chimney Repair</p>
             <span class="lp-meta">
               <span class="pill pill-offer">Free estimate</span>
-              <span class="pill pill-path">/offer/chimney-repair/</span>
             </span>
           </span>
           <span class="lp-arrow" aria-hidden="true">
@@ -347,7 +236,6 @@
             <p class="lp-title">Fireplace Repair</p>
             <span class="lp-meta">
               <span class="pill pill-offer">Gas + electric</span>
-              <span class="pill pill-path">/offer/fireplace-repair/</span>
             </span>
           </span>
           <span class="lp-arrow" aria-hidden="true">
@@ -361,7 +249,6 @@
             <p class="lp-title">Chimney Cap Repair &amp; Replacement</p>
             <span class="lp-meta">
               <span class="pill pill-offer">Free estimate</span>
-              <span class="pill pill-path">/offer/chimney-cap/</span>
             </span>
           </span>
           <span class="lp-arrow" aria-hidden="true">
@@ -371,32 +258,6 @@
       </li>
     </ul>
 
-    <div class="panel">
-      <div class="panel-head">Quick tests &amp; notes</div>
-      <div class="panel-body">
-        <p class="tip">
-          <strong>City swap</strong> — append a city id to any LP:
-        </p>
-        <div class="chip-row">
-          <a href="/offer/chimney-sweep/?loc=1026804"><code>?loc=1026804</code> Southlake</a>
-          <a href="/offer/chimney-sweep/?loc=1026695"><code>?loc=1026695</code> Plano</a>
-        </div>
-        <p class="tip">
-          <strong>Keyword swap</strong> — e.g.
-          <code>?kw=chimney%20cleaning</code> on the sweep page.
-        </p>
-        <p class="tip">
-          <strong>Forms</strong> post to <code>/api/lead</code>, then redirect to thank-you (conversion + email).
-        </p>
-        <div class="chip-row">
-          <a href="/offer/thank-you/">Open thank-you page →</a>
-        </div>
-      </div>
-    </div>
-
-    <p class="footer">
-      Internal hub · <a href="tel:+18448030373">(844) 803-0373</a>
-    </p>
   </div>
 </body>
 </html>
