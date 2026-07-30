@@ -63,8 +63,8 @@
   }
 
   /**
-   * Forms → thank-you page with name/service/loc query params.
-   * Webhook can still be wired later; redirect is the success state for now.
+   * Forms → POST /api/lead (email Yuval + Raz) → always redirect to thank-you.
+   * Conversion tracking depends on thank-you pageview; never skip redirect.
    */
   function bindForms() {
     document.querySelectorAll("form[data-lp-form]").forEach(function (form) {
@@ -74,16 +74,20 @@
         var nameInput = form.querySelector('[name="name"], #name');
         var phoneInput = form.querySelector('[name="phone"], #phone');
         var zipInput = form.querySelector('[name="zip"], #zip');
+        var msgInput = form.querySelector('[name="message"], #msg, #message');
         var name = nameInput ? String(nameInput.value || "").trim() : "";
         var phone = phoneInput ? String(phoneInput.value || "").trim() : "";
         var zip = zipInput ? String(zipInput.value || "").trim() : "";
+        var message = msgInput ? String(msgInput.value || "").trim() : "";
+        var status = form.querySelector(".form-status");
+        var submitBtn = form.querySelector('button[type="submit"], .btn-send');
 
         if (!name || !phone || !zip) {
-          var status = form.querySelector(".form-status");
           if (status) {
             status.classList.add("show", "is-error");
             status.classList.remove("is-ok");
-            status.textContent = "Please fill in name, phone, and zip so we can call you back.";
+            status.textContent =
+              "Please fill in name, phone, and zip so we can call you back.";
           }
           return;
         }
@@ -91,14 +95,67 @@
         var service = form.getAttribute("data-service") || "chimney-service";
         var params = new URLSearchParams(window.location.search);
         var loc = params.get("loc") || "";
+        var kw = params.get("kw") || "";
+        var gclid = params.get("gclid") || "";
+
+        var payload = {
+          name: name,
+          phone: phone,
+          zip: zip,
+          message: message,
+          page: window.location.pathname || "",
+          loc: loc,
+          kw: kw,
+          gclid: gclid,
+          service: service,
+        };
+
         var qs = new URLSearchParams();
         qs.set("name", name);
         qs.set("service", service);
         if (loc) qs.set("loc", loc);
         if (zip) qs.set("zip", zip);
+        if (kw) qs.set("kw", kw);
+        // Relative path: offer/*/index.html → offer/thank-you/
+        var thankYouUrl = "../thank-you/?" + qs.toString();
 
-        // Relative path works from offer/*/index.html → offer/thank-you/
-        window.location.href = "../thank-you/?" + qs.toString();
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.setAttribute("aria-busy", "true");
+        }
+        if (status) {
+          status.classList.add("show");
+          status.classList.remove("is-error", "is-ok");
+          status.textContent = "Sending…";
+        }
+
+        function goThankYou() {
+          window.location.href = thankYouUrl;
+        }
+
+        var finished = false;
+        function finish() {
+          if (finished) return;
+          finished = true;
+          goThankYou();
+        }
+
+        // Never strand the customer if the network hangs
+        var safety = window.setTimeout(finish, 8000);
+
+        fetch("/api/lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          keepalive: true,
+        })
+          .catch(function () {
+            /* email failures are logged server-side; still redirect */
+          })
+          .then(function () {
+            window.clearTimeout(safety);
+            finish();
+          });
       });
     });
   }
