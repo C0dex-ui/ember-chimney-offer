@@ -2,92 +2,401 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a1a2e">
   <title>Ember Chimney — Offer Landing Pages</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --brand: #d25910;
+      --brand-dark: #b34a0c;
+      --navy: #0f2744;
+      --navy-deep: #0a1a2e;
+      --ink: #1a1a1a;
+      --muted: #5a6270;
+      --line: #e6e8ec;
+      --cream: #f7f8fa;
+      --white: #fff;
+      --shadow: 0 12px 36px rgba(15, 39, 68, 0.1);
+      --radius: 16px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
     body {
       margin: 0;
+      min-height: 100vh;
       font-family: Montserrat, system-ui, sans-serif;
-      background: #fbf8f5;
-      color: #111;
-      line-height: 1.4;
-      padding: 2rem 1.25rem 3rem;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(210, 89, 16, 0.12), transparent 55%),
+        radial-gradient(900px 400px at 100% 0%, rgba(15, 39, 68, 0.08), transparent 50%),
+        var(--cream);
+      -webkit-font-smoothing: antialiased;
     }
-    .wrap { max-width: 720px; margin: 0 auto; }
-    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; }
-    p { color: #54595f; margin: 0 0 1.5rem; }
-    ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.75rem; }
-    a {
-      display: block;
-      padding: 1rem 1.15rem;
-      background: #fff;
-      border: 1px solid #e5e0db;
-      border-radius: 14px;
-      color: #111;
-      text-decoration: none;
-      font-weight: 600;
-      box-shadow: 0 4px 14px rgba(0,0,0,.05);
+    a { color: inherit; text-decoration: none; }
+
+    .shell {
+      width: min(100% - 2rem, 760px);
+      margin: 0 auto;
+      padding: 2.25rem 0 3.5rem;
     }
-    a:hover { border-color: #d25910; color: #d25910; }
-    small { display: block; margin-top: 0.25rem; font-weight: 500; color: #54595f; font-size: 0.85rem; }
-    .note {
-      margin-top: 1.5rem;
-      font-size: 0.85rem;
-      color: #54595f;
-      padding: 0.9rem 1rem;
-      background: #fff6ef;
+
+    .hero {
+      background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 55%, #8a3a12 140%);
+      border-radius: 22px;
+      padding: 1.75rem 1.5rem 1.6rem;
+      color: #fff;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: -40px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(210, 89, 16, 0.25);
+      pointer-events: none;
+    }
+    .hero-top {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-logo {
+      width: 52px;
+      height: 52px;
       border-radius: 12px;
+      background: #fff;
+      object-fit: contain;
+      padding: 4px;
+    }
+    .hero-kicker {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+      margin: 0 0 0.2rem;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.35rem, 3.5vw, 1.75rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .hero-lead {
+      margin: 0;
+      position: relative;
+      z-index: 1;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      max-width: 40ch;
+    }
+    .hero-lead strong { color: #ffb07a; font-weight: 700; }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 0.75rem 0.15rem;
+    }
+
+    .lp-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.75rem;
+    }
+    .lp-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 0.85rem 1rem;
+      padding: 1.05rem 1.15rem;
+      background: var(--white);
+      border: 1px solid rgba(15, 39, 68, 0.08);
+      border-radius: var(--radius);
+      box-shadow: 0 6px 20px rgba(15, 39, 68, 0.06);
+      transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), border-color 0.2s var(--ease);
+    }
+    .lp-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(210, 89, 16, 0.35);
+      box-shadow: 0 14px 32px rgba(15, 39, 68, 0.12);
+    }
+    .lp-card:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(210, 89, 16, 0.35);
+    }
+    .lp-title {
+      margin: 0 0 0.3rem;
+      font-size: 1.02rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+    .lp-card:hover .lp-title { color: var(--brand); }
+    .lp-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.22rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .pill-offer {
+      background: #fff6ef;
+      color: var(--brand-dark);
       border: 1px solid #ffd0ad;
     }
-    code { font-size: 0.85em; }
+    .pill-path {
+      background: #f0f3f7;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 600;
+      font-size: 0.7rem;
+    }
+    .lp-arrow {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #fff6ef;
+      color: var(--brand);
+      border: 1px solid #ffd0ad;
+      flex-shrink: 0;
+      transition: background 0.2s var(--ease), color 0.2s var(--ease);
+    }
+    .lp-card:hover .lp-arrow {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+    .lp-arrow svg { width: 18px; height: 18px; }
+
+    .panel {
+      margin-top: 1.35rem;
+      background: var(--white);
+      border: 1px solid rgba(15, 39, 68, 0.08);
+      border-radius: var(--radius);
+      box-shadow: 0 6px 20px rgba(15, 39, 68, 0.05);
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: 0.85rem 1.15rem;
+      background: linear-gradient(90deg, #fff6ef, #fff);
+      border-bottom: 1px solid #ffe0c2;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--brand);
+    }
+    .panel-body {
+      padding: 1rem 1.15rem 1.15rem;
+      display: grid;
+      gap: 0.85rem;
+    }
+    .tip {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .tip strong { color: var(--ink); }
+    .tip code,
+    .chip-row code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82em;
+      background: #f0f3f7;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.12rem 0.4rem;
+      color: var(--navy);
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+    .chip-row a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.7rem;
+      border-radius: 10px;
+      background: #f7f8fa;
+      border: 1px solid var(--line);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--navy);
+      transition: border-color 0.15s var(--ease), background 0.15s var(--ease);
+    }
+    .chip-row a:hover {
+      border-color: rgba(210, 89, 16, 0.4);
+      background: #fff6ef;
+      color: var(--brand-dark);
+    }
+
+    .footer {
+      margin-top: 1.75rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .footer a {
+      color: var(--brand);
+      font-weight: 700;
+    }
+
+    @media (min-width: 640px) {
+      .shell { padding-top: 2.75rem; }
+      .hero { padding: 2rem 2rem 1.85rem; }
+      .lp-card { padding: 1.15rem 1.25rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Ember Chimney — Offer LPs</h1>
-    <p>One repo · five Google Ads landing pages. City swap works with <code>?loc=</code>.</p>
-    <ul>
+  <div class="shell">
+    <header class="hero">
+      <div class="hero-top">
+        <img class="hero-logo" src="/assets/images/ember-logo.webp" alt="Ember Chimney" width="52" height="52">
+        <div>
+          <p class="hero-kicker">Google Ads · Landing pages</p>
+          <h1>Ember Chimney offer LPs</h1>
+        </div>
+      </div>
+      <p class="hero-lead">
+        Five service pages + thank-you. Dynamic city with <strong>?loc=</strong>
+        and keyword with <strong>?kw=</strong>. Forms email leads and convert on thank-you.
+      </p>
+    </header>
+
+    <p class="section-label">Landing pages</p>
+    <ul class="lp-list">
       <li>
-        <a href="/offer/chimney-sweep/">
-          Chimney Sweep &amp; Cleaning
-          <small>$99 · /offer/chimney-sweep/</small>
+        <a class="lp-card" href="/offer/chimney-sweep/">
+          <span>
+            <p class="lp-title">Chimney Sweep &amp; Cleaning</p>
+            <span class="lp-meta">
+              <span class="pill pill-offer">$99 special</span>
+              <span class="pill pill-path">/offer/chimney-sweep/</span>
+            </span>
+          </span>
+          <span class="lp-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </span>
         </a>
       </li>
       <li>
-        <a href="/offer/chimney-inspection/">
-          Chimney Inspection
-          <small>$69 · /offer/chimney-inspection/</small>
+        <a class="lp-card" href="/offer/chimney-inspection/">
+          <span>
+            <p class="lp-title">Chimney Inspection</p>
+            <span class="lp-meta">
+              <span class="pill pill-offer">$69 special</span>
+              <span class="pill pill-path">/offer/chimney-inspection/</span>
+            </span>
+          </span>
+          <span class="lp-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </span>
         </a>
       </li>
       <li>
-        <a href="/offer/chimney-repair/">
-          Chimney Repair
-          <small>Free estimate · /offer/chimney-repair/</small>
+        <a class="lp-card" href="/offer/chimney-repair/">
+          <span>
+            <p class="lp-title">Chimney Repair</p>
+            <span class="lp-meta">
+              <span class="pill pill-offer">Free estimate</span>
+              <span class="pill pill-path">/offer/chimney-repair/</span>
+            </span>
+          </span>
+          <span class="lp-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </span>
         </a>
       </li>
       <li>
-        <a href="/offer/fireplace-repair/">
-          Fireplace Repair (gas + electric)
-          <small>Free estimate · /offer/fireplace-repair/</small>
+        <a class="lp-card" href="/offer/fireplace-repair/">
+          <span>
+            <p class="lp-title">Fireplace Repair</p>
+            <span class="lp-meta">
+              <span class="pill pill-offer">Gas + electric</span>
+              <span class="pill pill-path">/offer/fireplace-repair/</span>
+            </span>
+          </span>
+          <span class="lp-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </span>
         </a>
       </li>
       <li>
-        <a href="/offer/chimney-cap/">
-          Chimney Cap Repair &amp; Replacement
-          <small>Free estimate · /offer/chimney-cap/</small>
+        <a class="lp-card" href="/offer/chimney-cap/">
+          <span>
+            <p class="lp-title">Chimney Cap Repair &amp; Replacement</p>
+            <span class="lp-meta">
+              <span class="pill pill-offer">Free estimate</span>
+              <span class="pill pill-path">/offer/chimney-cap/</span>
+            </span>
+          </span>
+          <span class="lp-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </span>
         </a>
       </li>
     </ul>
-    <div class="note">
-      <strong>City test:</strong> append <code>?loc=1026804</code> (Southlake) or
-      <code>?loc=1026695</code> (Plano) to any page URL.
-      <br><br>
-      <strong>CRO:</strong> Forms redirect to
-      <a href="/offer/thank-you/"><code>/offer/thank-you/</code></a>
-      (conversion event). Optional speed-to-lead webhook:
-      set <code>window.EMBER_LEAD_WEBHOOK</code> before <code>lp.js</code>.
+
+    <div class="panel">
+      <div class="panel-head">Quick tests &amp; notes</div>
+      <div class="panel-body">
+        <p class="tip">
+          <strong>City swap</strong> — append a city id to any LP:
+        </p>
+        <div class="chip-row">
+          <a href="/offer/chimney-sweep/?loc=1026804"><code>?loc=1026804</code> Southlake</a>
+          <a href="/offer/chimney-sweep/?loc=1026695"><code>?loc=1026695</code> Plano</a>
+        </div>
+        <p class="tip">
+          <strong>Keyword swap</strong> — e.g.
+          <code>?kw=chimney%20cleaning</code> on the sweep page.
+        </p>
+        <p class="tip">
+          <strong>Forms</strong> post to <code>/api/lead</code>, then redirect to thank-you (conversion + email).
+        </p>
+        <div class="chip-row">
+          <a href="/offer/thank-you/">Open thank-you page →</a>
+        </div>
+      </div>
     </div>
+
+    <p class="footer">
+      Internal hub · <a href="tel:+18448030373">(844) 803-0373</a>
+    </p>
   </div>
 </body>
 </html>
