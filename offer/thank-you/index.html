@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Roboto+Slab:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../assets/css/lp.css?v=29">
+  <link rel="stylesheet" href="../../assets/css/lp.css?v=30">
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18337676973"></script>
   <script>
@@ -93,6 +93,48 @@
         </div>
       </div>
     </section>
+
+    <!-- GHL booking calendar (lazy-loaded) -->
+    <section class="ty-book" id="book" aria-label="Book an appointment">
+      <div class="wrap ty-book-inner">
+        <h2 class="ty-book-title">Or skip the phone call — pick your time now:</h2>
+        <p class="ty-book-lead">Choose a service window that works for you. We’ll confirm by text and email.</p>
+        <div class="ty-book-frame" data-ghl-book>
+          <p class="ty-book-placeholder">Loading scheduler…</p>
+        </div>
+      </div>
+    </section>
+    <script>
+      (function () {
+        var host = document.querySelector("[data-ghl-book]");
+        if (!host) return;
+        var loaded = false;
+        function loadBook() {
+          if (loaded) return;
+          loaded = true;
+          host.innerHTML =
+            '<iframe src="https://api.ranknight.com/widget/booking/FWJQSxD8wxnWtrFkRt4Y" title="Book a service appointment" allow="payment" loading="lazy" style="width:100%;border:none;overflow:hidden;min-height:720px;" scrolling="no" id="ghl-book-ember"></iframe>';
+          var s = document.createElement("script");
+          s.src = "https://api.ranknight.com/js/form_embed.js";
+          s.async = true;
+          document.body.appendChild(s);
+        }
+        if (!("IntersectionObserver" in window)) {
+          loadBook();
+          return;
+        }
+        var io = new IntersectionObserver(
+          function (entries) {
+            if (entries[0] && entries[0].isIntersecting) {
+              io.disconnect();
+              loadBook();
+            }
+          },
+          { rootMargin: "240px 0px" }
+        );
+        io.observe(host);
+      })();
+    </script>
 
     <!-- Next steps + trust -->
     <section class="ty-body">

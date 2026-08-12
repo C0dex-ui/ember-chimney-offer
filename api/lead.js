@@ -1,11 +1,12 @@
 /**
  * POST /api/lead
- * Server-side only. Emails new Ember LP leads to Yuval + Raz via Resend.
+ * Server-side only. Emails new Ember LP leads to Yuval + Raz via Resend,
+ * and forwards the same lead to GoHighLevel (speed-to-lead workflow).
  *
  * Env (Vercel project settings):
- *   RESEND_API_KEY  — required (https://resend.com)
- *   RESEND_FROM     — e.g. "Ember Chimney <info@emberchimney.com>"
- *                     Domain must be verified in Resend (DNS).
+ *   RESEND_API_KEY    — required for email (https://resend.com)
+ *   RESEND_FROM       — e.g. "Ember Chimney <info@emberchimney.com>"
+ *   GHL_WEBHOOK_URL   — Inbound Webhook URL (Ember LP Leads — Speed to Lead)
  */
 
 const TO = ["yuvalcarmel27@gmail.com", "raz2540@gmail.com"];
@@ -298,16 +299,64 @@ module.exports = async function handler(req, res) {
   const text = buildTextEmail(fields);
   const html = buildHtmlEmail(fields);
 
-  // TODO next phase: also forward payload to CRM webhook (env var), same JSON body
+  // GHL inbound webhook payload (keys match workflow mapping + site aliases)
+  const ghlPayload = {
+    name,
+    phone,
+    zip,
+    message,
+    page,
+    city_param: loc,
+    kw_param: kw,
+    gclid,
+    loc,
+    kw,
+    service,
+  };
 
+  const ghlPromise = forwardToGhl(ghlPayload);
+  const emailPromise = sendResendEmail({ subject, text, html });
+
+  const [ghl, emailed] = await Promise.all([ghlPromise, emailPromise]);
+
+  return json(res, 200, {
+    ok: !!(emailed.ok || ghl.ok),
+    emailed: !!emailed.ok,
+    ghl: !!ghl.ok,
+    id: emailed.id || null,
+    error: emailed.ok || ghl.ok ? undefined : emailed.error || ghl.error,
+  });
+};
+
+/** Forward lead to GHL; never throws — failures are logged only. */
+async function forwardToGhl(payload) {
+  const url = (process.env.GHL_WEBHOOK_URL || "").trim();
+  if (!url) {
+    return { ok: false, skipped: true, error: "GHL_WEBHOOK_URL not set" };
+  }
+  try {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const bodyText = await r.text().catch(() => "");
+    if (!r.ok) {
+      console.error("[lead] GHL webhook error", r.status, bodyText.slice(0, 300));
+      return { ok: false, error: "GHL webhook error" };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("[lead] GHL webhook failed", err);
+    return { ok: false, error: "GHL webhook failed" };
+  }
+}
+
+async function sendResendEmail({ subject, text, html }) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.error("[lead] RESEND_API_KEY is not set");
-    return json(res, 200, {
-      ok: false,
-      emailed: false,
-      error: "Email not configured (RESEND_API_KEY missing)",
-    });
+    return { ok: false, error: "Email not configured (RESEND_API_KEY missing)" };
   }
 
   const from =
@@ -332,20 +381,12 @@ module.exports = async function handler(req, res) {
     const result = await r.json().catch(() => ({}));
     if (!r.ok) {
       console.error("[lead] Resend error", r.status, result);
-      return json(res, 200, {
-        ok: false,
-        emailed: false,
-        error: "Email provider error",
-      });
+      return { ok: false, error: "Email provider error" };
     }
 
-    return json(res, 200, { ok: true, emailed: true, id: result.id || null });
+    return { ok: true, id: result.id || null };
   } catch (err) {
     console.error("[lead] send failed", err);
-    return json(res, 200, {
-      ok: false,
-      emailed: false,
-      error: "Email send failed",
-    });
+    return { ok: false, error: "Email send failed" };
   }
-};
+}
