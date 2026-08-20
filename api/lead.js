@@ -49,6 +49,7 @@ const SERVICE_LABELS = {
   "chimney-inspection": "Chimney Inspection",
   "chimney-repair": "Chimney Repair",
   "fireplace-repair": "Fireplace Repair",
+  "fireplace-installation": "Fireplace & Gas Log Installation",
   "chimney-cap": "Chimney Cap",
 };
 
