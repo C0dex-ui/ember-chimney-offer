@@ -268,6 +268,59 @@
     });
   }
 
+  function bindMediaVideos() {
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var autoplayVideos = document.querySelectorAll("video.hero-atlas-video");
+    var workVideos = document.querySelectorAll("video[data-work-video]");
+
+    function muteAndInline(v) {
+      v.muted = true;
+      v.defaultMuted = true;
+      v.playsInline = true;
+      v.setAttribute("playsinline", "");
+    }
+
+    autoplayVideos.forEach(function (v) {
+      muteAndInline(v);
+      if (reduce) {
+        v.removeAttribute("autoplay");
+        v.pause();
+        return;
+      }
+      var play = v.play();
+      if (play && play.catch) play.catch(function () {});
+    });
+
+    workVideos.forEach(function (v) {
+      muteAndInline(v);
+      if (reduce) return;
+      if (!("IntersectionObserver" in window)) {
+        var play = v.play();
+        if (play && play.catch) play.catch(function () {});
+      }
+    });
+
+    if (reduce || !("IntersectionObserver" in window) || !workVideos.length) return;
+
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          var v = entry.target;
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.35) {
+            var play = v.play();
+            if (play && play.catch) play.catch(function () {});
+          } else {
+            v.pause();
+          }
+        });
+      },
+      { threshold: [0, 0.35, 0.7] }
+    );
+    workVideos.forEach(function (v) {
+      io.observe(v);
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     setOfferEndDates();
     bindHeaderScroll();
@@ -276,5 +329,6 @@
     setYear();
     bindReviewMore();
     bindReviewsSlider();
+    bindMediaVideos();
   });
 })();

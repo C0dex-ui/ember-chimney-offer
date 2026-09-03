@@ -150,15 +150,20 @@ button { cursor: pointer; border: 0; background: none; }
   background: #e8eaed;
   box-shadow: 0 6px 18px rgba(15, 20, 25, 0.1);
 }
-.work-shot img {
+.work-shot img,
+.work-shot video {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.35s ease;
 }
-.work-shot:hover img {
+.work-shot:hover img,
+.work-shot:hover video {
   transform: scale(1.03);
+}
+.work-shot video {
+  background: #1a100c;
 }
 /* What's included — card grid -------------------------------------------- */
 #included.section {
@@ -646,6 +651,15 @@ button { cursor: pointer; border: 0; background: none; }
   background-position: center center;
   background-repeat: no-repeat;
   transform: scale(1.03);
+}
+.hero-atlas-bg video,
+.hero-atlas-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #1a100c;
 }
 /* Keep the job photo visible — Atlas-style soft vignette, not a solid blueprint wash */
 .hero-atlas-bg::after {
