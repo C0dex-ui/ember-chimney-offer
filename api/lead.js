@@ -46,6 +46,59 @@ const GEO = {
   "9053138": "Westlake",
 };
 
+const GEO_NJ = {
+  "1022374": "Ridgewood",
+  "1022131": "Franklin Lakes",
+  "1022491": "Wyckoff",
+  "1022437": "Tenafly",
+  "1022365": "Ramsey",
+  "1022148": "Glen Rock",
+  "1022237": "Mahwah",
+  "1022326": "Paramus",
+  "1022119": "Fair Lawn",
+  "1022321": "Oradell",
+  "1022473": "Westwood",
+  "1022180": "Hillsdale",
+  "1021997": "Allendale",
+  "1022263": "Millburn",
+  "1022406": "Short Hills",
+  "1022228": "Livingston",
+  "1022273": "Montclair",
+  "1022451": "Verona",
+  "1022470": "West Orange",
+  "1022280": "Morristown",
+  "1022235": "Madison",
+  "1022069": "Chatham",
+  "1022128": "Florham Park",
+  "1022095": "Denville",
+  "1022367": "Randolph",
+  "1022433": "Summit",
+  "1022471": "Westfield",
+  "1022088": "Cranford",
+  "1022030": "Berkeley Heights",
+  "1022298": "New Providence",
+  "1022017": "Basking Ridge",
+  "1022461": "Warren",
+  "1022464": "Wayne",
+  "1022274": "Montvale",
+  "1022398": "Scotch Plains",
+  "1022420": "Sparta",
+  "1022126": "Flemington",
+  "1022462": "Washington",
+  "1022037": "Bloomfield",
+  "1022348": "Plainfield",
+  "1022469": "West New York",
+  "1022444": "Trenton",
+  "1022191": "Iselin",
+  "1022155": "Hackensack",
+  "1022097": "Dumont",
+  "1022099": "East Brunswick",
+  "1022423": "Springfield",
+  "1023393": "Spring Valley",
+  "1023496": "White Plains",
+  "9051492": "Aberdeen Township",
+};
+
 const SERVICE_LABELS = {
   "chimney-sweep": "Chimney Sweep",
   "chimney-inspection": "Chimney Inspection",
@@ -115,7 +168,15 @@ function serviceLabel(service, page) {
 function cityDisplay(loc) {
   if (!loc) return "—";
   if (GEO[loc]) return `${GEO[loc]} (${loc})`;
+  if (GEO_NJ[loc]) return `${GEO_NJ[loc]} (${loc})`;
   return loc;
+}
+
+function marketLabel(market, page) {
+  const m = clean(market, 8).toUpperCase();
+  if (m === "NJ" || m === "DFW") return m;
+  if (String(page || "").indexOf("/nj/") !== -1) return "NJ";
+  return "DFW";
 }
 
 function dash(v) {
@@ -143,6 +204,8 @@ function buildTextEmail(fields) {
     `City:     ${fields.cityLine}`,
     `Keyword:  ${fields.kw || "(none)"}`,
     `Gclid:    ${fields.gclid || "(none)"}`,
+    `Market:   ${fields.market}`,
+    `Variant:  ${fields.variant || "(none)"}`,
     `Time:     ${fields.time}`,
     "",
     "— Ember Chimney landing page form",
@@ -224,6 +287,8 @@ function buildHtmlEmail(fields) {
                 ${row("City", escapeHtml(fields.cityLine))}
                 ${row("Keyword", escapeHtml(dash(fields.kw)))}
                 ${row("Gclid", `<span style="word-break:break-all;font-size:13px;color:#5a6270;">${escapeHtml(dash(fields.gclid))}</span>`)}
+                ${row("Market", escapeHtml(fields.market))}
+                ${row("Variant", escapeHtml(dash(fields.variant)))}
                 ${row("Time", escapeHtml(fields.time))}
               </table>
             </td>
@@ -275,6 +340,8 @@ module.exports = async function handler(req, res) {
   const kw = clean(data.kw, 200);
   const gclid = clean(data.gclid, 200);
   const service = clean(data.service, 80);
+  const variant = clean(data.variant, 8).toLowerCase();
+  const market = marketLabel(data.market, page);
 
   if (!name || !phone || !zip) {
     return json(res, 400, {
@@ -293,6 +360,8 @@ module.exports = async function handler(req, res) {
     kw,
     gclid,
     service,
+    market,
+    variant: variant === "a" || variant === "b" ? variant : "",
     serviceLabel: serviceLabel(service, page),
     cityLine: cityDisplay(loc),
     time: centralTimeStamp(),
@@ -315,6 +384,8 @@ module.exports = async function handler(req, res) {
     loc,
     kw,
     service,
+    market: fields.market,
+    variant: fields.variant,
   };
 
   const ghlPromise = forwardToGhl(ghlPayload);

@@ -10,6 +10,7 @@ desktop.ini
 
 # Local tooling / scrapes (not needed on Vercel)
 resources/
+updates/
 __pycache__/
 *.pyc
 

@@ -3,7 +3,13 @@
   "trailingSlash": true,
   "headers": [
     {
-      "source": "/(nj/)?offer/(.*)",
+      "source": "/offer/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    },
+    {
+      "source": "/nj/offer/(.*)",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
       ]

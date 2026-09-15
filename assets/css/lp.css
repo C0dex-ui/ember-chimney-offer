@@ -712,6 +712,15 @@ button { cursor: pointer; border: 0; background: none; }
 }
 .hero-bullets .ico svg { width: 16px; height: 16px; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-bottom: 1.25rem; }
+html:not(.ab-b) [data-ab="b"] { display: none !important; }
+html.ab-b [data-ab="a"] { display: none !important; }
+.hero-trust-line {
+  margin: -0.55rem 0 1.15rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
+}
 .hero-mini-badges {
   display: flex; flex-wrap: wrap; gap: 0.85rem 1.1rem; align-items: center;
 }

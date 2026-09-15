@@ -1,25 +1,54 @@
 /**
  * Ember Chimney — Offer Landing Page scripts
- * - Auto limited-time offer end date (+7 days, rolls daily): 7/20 → 7/27, next day → 7/28
- * - Sticky header state
- * - Smooth in-page # anchors
- * - Form placeholder only (no webhook / no thank-you redirect yet — client wires later)
+ * - Rolling offer end date: Sunday of next week (if today is Sunday, the following Sunday)
+ * - Sticky header, smooth # anchors, reviews, media
+ * - Forms → POST /api/lead → /offer/thank-you/
+ *
+ * NJ phone (one-line swap when CallRail number arrives):
+ *   NJ_DISPLAY_NUMBER / NJ_TEL_HREF below
  */
 (function () {
   "use strict";
+
+  var NJ_DISPLAY_NUMBER = window.NJ_DISPLAY_NUMBER || "(XXX) XXX-XXXX";
+  var NJ_TEL_HREF = window.NJ_TEL_HREF || "tel:+1XXXXXXXXXX";
+
+  function isNjPage() {
+    return /\/nj\//.test(window.location.pathname || "");
+  }
+
+  function pageMarket() {
+    return isNjPage() ? "NJ" : "DFW";
+  }
 
   function formatOfferDate(date) {
     return date.getMonth() + 1 + "/" + date.getDate();
   }
 
-  /** Always 7 days out from today. */
-  function setOfferEndDates() {
+  /** Next Sunday (M/D). If today is Sunday, use the following Sunday. */
+  function nextSunday() {
     var end = new Date();
     end.setHours(0, 0, 0, 0);
-    end.setDate(end.getDate() + 7);
-    var label = formatOfferDate(end);
+    var add = end.getDay() === 0 ? 7 : 7 - end.getDay();
+    end.setDate(end.getDate() + add);
+    return end;
+  }
+
+  function setOfferEndDates() {
+    var label = formatOfferDate(nextSunday());
     document.querySelectorAll("[data-offer-end]").forEach(function (el) {
       el.textContent = label;
+    });
+  }
+
+  function applyNjPhone() {
+    if (!isNjPage()) return;
+    document.querySelectorAll('a[href^="tel:"]').forEach(function (a) {
+      a.setAttribute("href", NJ_TEL_HREF);
+      a.innerHTML = a.innerHTML.replace(
+        /\(844\) 803-0373|\(XXX\) XXX-XXXX/g,
+        NJ_DISPLAY_NUMBER
+      );
     });
   }
 
@@ -97,18 +126,32 @@
         var loc = params.get("loc") || "";
         var kw = params.get("kw") || "";
         var gclid = params.get("gclid") || "";
+        var market = pageMarket();
+        var variant = "";
+        var path = window.location.pathname || "";
+        if (market === "DFW" && /chimney-sweep/.test(path)) {
+          variant =
+            document.body.getAttribute("data-ab") ||
+            document.documentElement.getAttribute("data-ab") ||
+            "";
+          try {
+            if (variant) sessionStorage.setItem("ab_sweep_conv", variant);
+          } catch (err) {}
+        }
 
         var payload = {
           name: name,
           phone: phone,
           zip: zip,
           message: message,
-          page: window.location.pathname || "",
+          page: path,
           loc: loc,
           kw: kw,
           gclid: gclid,
           service: service,
+          market: market,
         };
+        if (variant) payload.variant = variant;
 
         var qs = new URLSearchParams();
         qs.set("name", name);
@@ -116,8 +159,8 @@
         if (loc) qs.set("loc", loc);
         if (zip) qs.set("zip", zip);
         if (kw) qs.set("kw", kw);
-        // Relative path: offer/*/index.html → offer/thank-you/
-        var thankYouUrl = "../thank-you/?" + qs.toString();
+        // Shared thank-you for DFW and NJ
+        var thankYouUrl = "/offer/thank-you/?" + qs.toString();
 
         if (submitBtn) {
           submitBtn.disabled = true;
@@ -323,6 +366,7 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     setOfferEndDates();
+    applyNjPhone();
     bindHeaderScroll();
     bindSmoothAnchors();
     bindForms();

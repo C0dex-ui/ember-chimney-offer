@@ -23,11 +23,17 @@
   </script>
   <!-- Event snippet: Form Lead - Ember LP (thank-you only) -->
   <script>
-    gtag('event', 'conversion', {
-      'send_to': 'AW-18337676973/hrOACJfpptkcEK39iqhE',
-      'value': 1.0,
-      'currency': 'USD'
-    });
+    (function () {
+      var variant = "";
+      try { variant = sessionStorage.getItem("ab_sweep_conv") || ""; } catch (e) {}
+      var payload = {
+        send_to: "AW-18337676973/hrOACJfpptkcEK39iqhE",
+        value: 1.0,
+        currency: "USD"
+      };
+      if (variant) payload.variant = variant;
+      gtag("event", "conversion", payload);
+    })();
   </script>
 
   <!-- CallRail: early load so gclid session is ready before numbers paint -->
@@ -271,7 +277,7 @@
     }
   })();
   </script>
-  <script src="../../assets/js/lp.js?v=43"></script>
+  <script src="../../assets/js/lp.js?v=44"></script>
   <!-- CallRail dynamic number insertion -->
   <script type="text/javascript" src="https://cdn.callrail.com/companies/578256671/32f23b92d88d9a105486/12/swap.js"></script>
 </body>
