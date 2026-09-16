@@ -1,6 +1,7 @@
 /**
  * POST /api/lead
- * Server-side only. Emails new Ember LP leads to Yuval + Raz via Resend,
+ * Server-side only. Emails new Ember LP leads via Resend
+ * (Yuval + Raz Gmails, plus Elevation Prospecting inboxes),
  * and forwards the same lead to GoHighLevel (speed-to-lead workflow).
  *
  * Env (Vercel project settings):
@@ -9,7 +10,12 @@
  *   GHL_WEBHOOK_URL   — Inbound Webhook URL (Ember LP Leads — Speed to Lead)
  */
 
-const TO = ["yuvalcarmel27@gmail.com", "raz2540@gmail.com"];
+const TO = [
+  "yuvalcarmel27@gmail.com",
+  "raz2540@gmail.com",
+  "office@elevationprospecting.com",
+  "yuval@elevationprospecting.com",
+];
 
 const GEO = {
   "1026178": "Allen",
