@@ -7,7 +7,8 @@
  * Env (Vercel project settings):
  *   RESEND_API_KEY    — required for email (https://resend.com)
  *   RESEND_FROM       — e.g. "Ember Chimney <info@emberchimney.com>"
- *   GHL_WEBHOOK_URL   — Inbound Webhook URL (Ember LP Leads — Speed to Lead)
+ *   GHL_WEBHOOK_URL              — Ember LP Leads — Speed to Lead
+ *   GHL_ELEVATION_WEBHOOK_URL    — Ember Ads Leads — Elevation (no Call)
  */
 
 const TO = [
@@ -402,18 +403,15 @@ module.exports = async function handler(req, res) {
   return json(res, 200, {
     ok: !!(emailed.ok || ghl.ok),
     emailed: !!emailed.ok,
-    ghl: !!ghl.ok,
+    ghl: !!ghl.ember,
+    ghlElevation: !!ghl.elevation,
     id: emailed.id || null,
     error: emailed.ok || ghl.ok ? undefined : emailed.error || ghl.error,
   });
 };
 
-/** Forward lead to GHL; never throws — failures are logged only. */
-async function forwardToGhl(payload) {
-  const url = (process.env.GHL_WEBHOOK_URL || "").trim();
-  if (!url) {
-    return { ok: false, skipped: true, error: "GHL_WEBHOOK_URL not set" };
-  }
+/** POST the same payload to one GHL inbound webhook. Never throws. */
+async function postGhlWebhook(label, url, payload) {
   try {
     const r = await fetch(url, {
       method: "POST",
@@ -422,14 +420,40 @@ async function forwardToGhl(payload) {
     });
     const bodyText = await r.text().catch(() => "");
     if (!r.ok) {
-      console.error("[lead] GHL webhook error", r.status, bodyText.slice(0, 300));
+      console.error("[lead] GHL webhook error", label, r.status, bodyText.slice(0, 300));
       return { ok: false, error: "GHL webhook error" };
     }
     return { ok: true };
   } catch (err) {
-    console.error("[lead] GHL webhook failed", err);
+    console.error("[lead] GHL webhook failed", label, err);
     return { ok: false, error: "GHL webhook failed" };
   }
+}
+
+/** Forward the same payload to Ember and Elevation. One failure does not block the other. */
+async function forwardToGhl(payload) {
+  const emberUrl = (process.env.GHL_WEBHOOK_URL || "").trim();
+  const elevationUrl = (process.env.GHL_ELEVATION_WEBHOOK_URL || "").trim();
+
+  if (!emberUrl && !elevationUrl) {
+    return { ok: false, skipped: true, error: "GHL_WEBHOOK_URL not set" };
+  }
+
+  const [ember, elevation] = await Promise.all([
+    emberUrl
+      ? postGhlWebhook("ember", emberUrl, payload)
+      : Promise.resolve({ ok: false, skipped: true }),
+    elevationUrl
+      ? postGhlWebhook("elevation", elevationUrl, payload)
+      : Promise.resolve({ ok: false, skipped: true }),
+  ]);
+
+  return {
+    ok: !!(ember.ok || elevation.ok),
+    ember: !!ember.ok,
+    elevation: !!elevation.ok,
+    error: ember.ok || elevation.ok ? undefined : ember.error || elevation.error,
+  };
 }
 
 async function sendResendEmail({ subject, text, html }) {
